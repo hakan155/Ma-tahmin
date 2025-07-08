@@ -1,0 +1,60 @@
+import 'package:flutter/material.dart';
+import '../services/api_service.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<dynamic> liveMatches = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLiveMatches();
+  }
+
+  Future<void> fetchLiveMatches() async {
+    try {
+      final data = await ApiService.getLiveMatches();
+      setState(() {
+        liveMatches = data['response'];
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Hata: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Canlı Maçlar')),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: liveMatches.length,
+              itemBuilder: (context, index) {
+                final match = liveMatches[index];
+                final homeTeam = match['teams']['home']['name'];
+                final awayTeam = match['teams']['away']['name'];
+                final score = match['goals']['home'].toString() +
+                    ' - ' +
+                    match['goals']['away'].toString();
+
+                return ListTile(
+                  title: Text('$homeTeam vs $awayTeam'),
+                  subtitle: Text('Skor: $score'),
+                );
+              },
+            ),
+    );
+  }
+}
