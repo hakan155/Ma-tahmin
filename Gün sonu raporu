@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+
+class GunSonuRaporuPage extends StatelessWidget {
+  final List<Map<String, dynamic>> gunlukRaporlar;
+
+  const GunSonuRaporuPage({
+    super.key,
+    required this.gunlukRaporlar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double toplamOran = 0;
+    for (var rapor in gunlukRaporlar) {
+      toplamOran += rapor['basariOrani'];
+    }
+    double genelBasariOrani =
+        gunlukRaporlar.isNotEmpty ? toplamOran / gunlukRaporlar.length : 0;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gün Sonu Raporu'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Text("Toplam Başarı Oranı: ${genelBasariOrani.toStringAsFixed(2)}%",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          const Text("Günlük Raporlar:",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          ...gunlukRaporlar.map((rapor) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                title: Text(rapor['tarih']),
+                subtitle: Text(
+                    "Kupon: ${rapor['toplamKupon']} | Kazandı: ${rapor['kazananKupon']} | Kaybetti: ${rapor['kaybedenKupon']}"),
+                trailing: Text(
+                    "%${rapor['basariOrani'].toStringAsFixed(2)}",
+                    style: TextStyle(
+                      color: rapor['basariOrani'] >= 50
+                          ? Colors.green
+                          : Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    )),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+}
